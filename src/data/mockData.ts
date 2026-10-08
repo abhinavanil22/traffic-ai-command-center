@@ -8,6 +8,10 @@ export const intersections: Intersection[] = [
     vehiclesWaiting: 165,
     averageWait: 34,
     cameraWorking: true,
+    signalHealth: {
+      total: 4,
+      working: 4,
+    },
     trafficDensity: 62,
 
     directions: [

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getActiveAlerts } from "./utils/trafficAlerts";
 
 import Header from "./components/layout/Header";
 import Navigation from "./components/layout/Navigation";
@@ -30,6 +31,9 @@ function App() {
       total + intersection.vehiclesWaiting,
     0,
   );
+
+
+  const activeAlerts = getActiveAlerts(intersections);
 
   return (
     <div className="app">
@@ -67,14 +71,26 @@ function App() {
 
           <SummaryCard
             title="Signals working"
-            value="342 / 344"
-            description="2 signals need attention"
+            value={`${intersections.reduce(
+              (total, intersection) =>
+                total + intersection.signalHealth.working,
+              0,
+            )} / ${intersections.reduce(
+              (total, intersection) =>
+                total + intersection.signalHealth.total,
+              0,
+            )}`}
+            description="Signals currently operating"
           />
 
           <SummaryCard
             title="Active alerts"
-            value="3"
-            description="1 urgent • 2 warnings"
+            value={activeAlerts.length.toString()}
+            description={
+              activeAlerts.length === 0
+                ? "No active alerts"
+                : "Requires attention"
+            }
           />
         </div>
         <div className="traffic-info">

@@ -32,5 +32,11 @@ export interface Intersection {
   averageWait: number;
   cameraWorking: boolean;
   trafficDensity: number;
+  signalHealth: SignalHealth;
   directions: DirectionTraffic[];
+}
+
+export interface SignalHealth {
+  total: number;
+  working: number;
 }
