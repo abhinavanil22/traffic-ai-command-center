@@ -31,10 +31,25 @@ export function simulateTraffic(
       0,
     );
 
+    const averageWait = Math.round(
+      updatedDirections.reduce(
+        (total, direction) =>
+          total + direction.longestWait,
+        0,
+      ) / updatedDirections.length,
+    );
+
+    const trafficDensity = Math.min(
+      100,
+      Math.round((vehiclesWaiting / 250) * 100),
+    );
+
     return {
       ...intersection,
       directions: updatedDirections,
       vehiclesWaiting,
+      averageWait,
+      trafficDensity,
     };
   });
 }

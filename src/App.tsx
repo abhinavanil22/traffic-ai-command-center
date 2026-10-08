@@ -55,7 +55,13 @@ function App() {
 
           <SummaryCard
             title="Average waiting time"
-            value="34 sec"
+            value={`${Math.round(
+              intersections.reduce(
+                (total, intersection) =>
+                  total + intersection.averageWait,
+                0,
+              ) / intersections.length,
+            )} sec`}
             description="Average time vehicles wait"
           />
 
@@ -70,6 +76,19 @@ function App() {
             value="3"
             description="1 urgent • 2 warnings"
           />
+        </div>
+        <div className="traffic-info">
+          <p>
+            Traffic density:{" "}
+            {Math.round(
+              intersections.reduce(
+                (total, intersection) =>
+                  total + intersection.trafficDensity,
+                0,
+              ) / intersections.length,
+            )}
+            %
+          </p>
         </div>
       </main>
 
