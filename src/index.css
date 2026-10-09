@@ -221,3 +221,48 @@ button {
 
   font-size: 14px;
 }
+.intersection-status {
+  margin-top: 24px;
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.section-heading h3 {
+  margin: 0 0 6px;
+  color: #26374a;
+}
+
+.section-heading p {
+  margin: 0 0 20px;
+  color: #666;
+}
+
+.intersection-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.intersection-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr 1.2fr;
+  gap: 20px;
+  padding: 16px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.intersection-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.intersection-row span {
+  color: #666;
+  font-size: 14px;
+}
+
+.intersection-row strong {
+  color: #333;
+}

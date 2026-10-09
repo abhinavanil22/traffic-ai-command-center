@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getActiveAlerts } from "./utils/trafficAlerts";
+import IntersectionStatus from "./components/traffic/IntersectionStatus";
 
 import Header from "./components/layout/Header";
 import Navigation from "./components/layout/Navigation";
@@ -93,6 +94,9 @@ function App() {
             }
           />
         </div>
+        <IntersectionStatus
+          intersections={intersections}
+        />
         <div className="traffic-info">
           <p>
             Traffic density:{" "}
