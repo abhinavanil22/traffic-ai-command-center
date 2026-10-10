@@ -417,3 +417,116 @@ button {
 .safety-fail {
   border-left: 5px solid #c62828;
 }
+
+.decision-panel {
+  margin: 24px 0;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #d8dee6;
+  border-radius: 10px;
+}
+
+.decision-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.decision-summary > div,
+.decision-timings > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.decision-summary span,
+.decision-timings span {
+  color: #596579;
+  font-size: 13px;
+}
+
+.decision-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.decision-row {
+  padding: 16px;
+  border: 1px solid #e0e5eb;
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.decision-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.decision-title h4 {
+  margin: 0;
+}
+
+.decision-title span {
+  color: #596579;
+  font-size: 12px;
+}
+
+.demand-track {
+  height: 8px;
+  margin: 12px 0 16px;
+  overflow: hidden;
+  background: #e9edf2;
+  border-radius: 6px;
+}
+
+.demand-fill {
+  height: 100%;
+  background: #2670a8;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.decision-timings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.decision-timings strong {
+  font-size: 14px;
+}
+
+.decision-reason {
+  margin-bottom: 0;
+  color: #35465a;
+  font-size: 13px;
+}
+
+.simulation-note {
+  margin-top: 18px;
+  color: #596579;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .decision-summary,
+  .decision-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.navigation button.active {
+  background: #ffffff;
+  color: #26374a;
+  font-weight: 700;
+  border-bottom: 3px solid #2670a8;
+}
+
+.navigation button:focus-visible {
+  outline: 3px solid #2670a8;
+  outline-offset: 3px;
+}
