@@ -44,63 +44,87 @@ function App() {
   const activeAlerts = getActiveAlerts(intersections);
   const trafficHistory = useTrafficHistory(intersections);
   const selectedIntersection = intersections[0];
-  function handleScenarioChange(scenario: DemoScenario) {
-    setActiveScenario(scenario);
+  
+function handleScenarioChange(scenario: DemoScenario) {
+  setActiveScenario(scenario);
 
-    if (scenario === "normal") {
-      setIntersections(initialIntersections);
-      return;
-    }
+  // Always start from the original data so scenarios never compound.
+  setIntersections(
+    initialIntersections.map((intersection) => {
+      const directions = intersection.directions.map((direction) => {
+        let vehiclesWaiting = direction.vehiclesWaiting;
+        let averageSpeed = direction.averageSpeed;
+        let longestWait = direction.longestWait;
 
-    setIntersections((currentData) =>
-      currentData.map((intersection) => {
-        const directions = intersection.directions.map((direction) => ({
-          ...direction,
-          vehiclesWaiting:
-            scenario === "heavy-traffic"
-              ? Math.round(direction.vehiclesWaiting * 1.5)
-              : direction.vehiclesWaiting,
-          averageSpeed:
-            scenario === "rain"
-              ? Math.max(5, Math.round(direction.averageSpeed * 0.65))
-              : direction.averageSpeed,
-        }));
+        if (scenario === "heavy-traffic") {
+          vehiclesWaiting = Math.round(vehiclesWaiting * 1.5);
+          longestWait = Math.round(longestWait * 1.4);
+        }
 
-        const vehiclesWaiting = directions.reduce(
-          (total, direction) => total + direction.vehiclesWaiting,
-          0,
-        );
+        if (scenario === "rain") {
+          averageSpeed = Math.max(
+            5,
+            Math.round(averageSpeed * 0.65),
+          );
+          longestWait = Math.round(longestWait * 1.3);
+        }
 
-        const averageWait = Math.round(
-          directions.reduce(
-            (total, direction) => total + direction.longestWait,
-            0,
-          ) / directions.length,
-        );
+        if (scenario === "accident") {
+          // Simulate congestion around an incident.
+          vehiclesWaiting = Math.round(vehiclesWaiting * 1.8);
+          averageSpeed = Math.max(
+            3,
+            Math.round(averageSpeed * 0.4),
+          );
+          longestWait = Math.round(longestWait * 1.8);
+        }
 
         return {
-          ...intersection,
-          directions,
+          ...direction,
           vehiclesWaiting,
-          averageWait,
-          trafficDensity: Math.min(
-            100,
-            Math.round((vehiclesWaiting / 250) * 100),
-          ),
-          cameraWorking:
-            scenario === "camera-failure"
-              ? false
-              : intersection.cameraWorking,
-          status:
-            scenario === "camera-failure"
-              ? "problem"
-              : scenario === "heavy-traffic"
-                ? "busy"
-                : intersection.status,
+          averageSpeed,
+          longestWait,
         };
-      }),
-    );
-  }
+      });
+
+      const vehiclesWaiting = directions.reduce(
+        (total, direction) => total + direction.vehiclesWaiting,
+        0,
+      );
+
+      const averageWait = Math.round(
+        directions.reduce(
+          (total, direction) => total + direction.longestWait,
+          0,
+        ) / directions.length,
+      );
+
+      const cameraWorking = scenario !== "camera-failure";
+
+      const status =
+        scenario === "camera-failure"
+          ? "problem"
+          : scenario === "heavy-traffic" ||
+              scenario === "accident"
+            ? "busy"
+            : "normal";
+
+      return {
+        ...intersection,
+        directions,
+        vehiclesWaiting,
+        averageWait,
+        trafficDensity: Math.min(
+          100,
+          Math.round((vehiclesWaiting / 250) * 100),
+        ),
+        cameraWorking,
+        status,
+      };
+    }),
+  );
+}
+
   const [activeView, setActiveView] = useState<DashboardView>("Overview");
   const [activeScenario, setActiveScenario] = useState<DemoScenario>("normal");
   const viewDescriptions: Record<
@@ -170,6 +194,15 @@ function App() {
               >
                 Rain Mode
               </button>
+              
+              <button
+                type="button"
+                className={activeScenario === "accident" ? "selected" : ""}
+                onClick={() => handleScenarioChange("accident")}
+              >
+                Accident Mode
+              </button>
+
             </div>
 
             <p className="scenario-status">

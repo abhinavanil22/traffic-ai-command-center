@@ -45,4 +45,5 @@ export type DemoScenario =
   | "normal"
   | "heavy-traffic"
   | "camera-failure"
-  | "rain";
+  | "rain"
+  | "accident";
