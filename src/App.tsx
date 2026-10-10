@@ -15,6 +15,8 @@ import SummaryCard from "./components/common/SummaryCard";
 import { intersections as initialIntersections } from "./data/mockData";
 import { simulateTraffic } from "./simulator/trafficSimulator";
 import type { Intersection } from "./types/traffic";
+import type { DemoScenario } from "./types/traffic";
+
 
 function App() {
   const [intersections, setIntersections] =
@@ -42,7 +44,65 @@ function App() {
   const activeAlerts = getActiveAlerts(intersections);
   const trafficHistory = useTrafficHistory(intersections);
   const selectedIntersection = intersections[0];
+  function handleScenarioChange(scenario: DemoScenario) {
+    setActiveScenario(scenario);
+
+    if (scenario === "normal") {
+      setIntersections(initialIntersections);
+      return;
+    }
+
+    setIntersections((currentData) =>
+      currentData.map((intersection) => {
+        const directions = intersection.directions.map((direction) => ({
+          ...direction,
+          vehiclesWaiting:
+            scenario === "heavy-traffic"
+              ? Math.round(direction.vehiclesWaiting * 1.5)
+              : direction.vehiclesWaiting,
+          averageSpeed:
+            scenario === "rain"
+              ? Math.max(5, Math.round(direction.averageSpeed * 0.65))
+              : direction.averageSpeed,
+        }));
+
+        const vehiclesWaiting = directions.reduce(
+          (total, direction) => total + direction.vehiclesWaiting,
+          0,
+        );
+
+        const averageWait = Math.round(
+          directions.reduce(
+            (total, direction) => total + direction.longestWait,
+            0,
+          ) / directions.length,
+        );
+
+        return {
+          ...intersection,
+          directions,
+          vehiclesWaiting,
+          averageWait,
+          trafficDensity: Math.min(
+            100,
+            Math.round((vehiclesWaiting / 250) * 100),
+          ),
+          cameraWorking:
+            scenario === "camera-failure"
+              ? false
+              : intersection.cameraWorking,
+          status:
+            scenario === "camera-failure"
+              ? "problem"
+              : scenario === "heavy-traffic"
+                ? "busy"
+                : intersection.status,
+        };
+      }),
+    );
+  }
   const [activeView, setActiveView] = useState<DashboardView>("Overview");
+  const [activeScenario, setActiveScenario] = useState<DemoScenario>("normal");
   const viewDescriptions: Record<
     DashboardView,
     string
@@ -54,7 +114,7 @@ function App() {
     Reports: "Review traffic trends and session statistics.",
     "Manual Control": "Operator controls for the simulated signal environment.",
   };
-
+  
 
   return (
     <div className="app">
@@ -65,12 +125,59 @@ function App() {
         onViewChange={setActiveView}
       />
 
+
       <main className="main-content">
         <div className="page-heading">
           <h2>{activeView}</h2>
           <p>{viewDescriptions[activeView]}</p>
         </div>
+        {activeView === "Overview" && (
+          <section className="demo-controls">
+            <div>
+              <h3>Demo Scenario Controls</h3>
+              <p>Simulate different traffic conditions for the presentation.</p>
+            </div>
 
+            <div className="demo-control-buttons">
+              <button
+                type="button"
+                className={activeScenario === "normal" ? "selected" : ""}
+                onClick={() => handleScenarioChange("normal")}
+              >
+                Normal
+              </button>
+
+              <button
+                type="button"
+                className={activeScenario === "heavy-traffic" ? "selected" : ""}
+                onClick={() => handleScenarioChange("heavy-traffic")}
+              >
+                Heavy Traffic
+              </button>
+
+              <button
+                type="button"
+                className={activeScenario === "camera-failure" ? "selected" : ""}
+                onClick={() => handleScenarioChange("camera-failure")}
+              >
+                Camera Failure
+              </button>
+
+              <button
+                type="button"
+                className={activeScenario === "rain" ? "selected" : ""}
+                onClick={() => handleScenarioChange("rain")}
+              >
+                Rain Mode
+              </button>
+            </div>
+
+            <p className="scenario-status">
+              Active scenario: <strong>{activeScenario}</strong>
+              {" · "}Simulated data only
+            </p>
+          </section>
+        )}
 
         {activeView === "Overview" && (
           <>

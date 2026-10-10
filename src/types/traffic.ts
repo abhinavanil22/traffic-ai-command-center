@@ -40,3 +40,9 @@ export interface SignalHealth {
   total: number;
   working: number;
 }
+
+export type DemoScenario =
+  | "normal"
+  | "heavy-traffic"
+  | "camera-failure"
+  | "rain";
