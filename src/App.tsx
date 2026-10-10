@@ -3,6 +3,7 @@ import { getActiveAlerts } from "./utils/trafficAlerts";
 import IntersectionStatus from "./components/traffic/IntersectionStatus";
 import { useTrafficHistory } from "./hooks/useTrafficHistory";
 import TrafficChart from "./components/traffic/TrafficChart";
+import IntersectionDetails from "./components/traffic/IntersectionDetails";
 
 import Header from "./components/layout/Header";
 import Navigation from "./components/layout/Navigation";
@@ -38,6 +39,7 @@ function App() {
 
   const activeAlerts = getActiveAlerts(intersections);
   const trafficHistory = useTrafficHistory(intersections);
+  const selectedIntersection = intersections[0];
 
   return (
     <div className="app">
@@ -100,8 +102,15 @@ function App() {
         <IntersectionStatus
           intersections={intersections}
         />
+
+        {selectedIntersection && (
+          <IntersectionDetails
+            intersection={selectedIntersection}
+          />
+        )}
+
         <TrafficChart data={trafficHistory} />
-        
+
         <div className="traffic-info">
           <p>
             Traffic density:{" "}

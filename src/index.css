@@ -309,3 +309,78 @@ button {
     padding: 20px 16px;
   }
 }
+
+
+.intersection-details {
+  margin-top: 24px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+}
+
+.direction-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.direction-card {
+  padding: 18px;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+  background: #f8f8f8;
+}
+
+.direction-card h4 {
+  margin: 0;
+  color: #26374a;
+}
+
+.direction-count {
+  margin: 16px 0 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #26374a;
+}
+
+.direction-label,
+.direction-trend {
+  color: #555;
+  font-size: 14px;
+}
+
+.direction-metrics {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.direction-metrics div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.direction-metrics span {
+  color: #555;
+  font-size: 13px;
+}
+
+.direction-metrics strong {
+  color: #333;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .direction-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .direction-grid {
+    grid-template-columns: 1fr;
+  }
+}
