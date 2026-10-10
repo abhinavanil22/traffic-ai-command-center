@@ -1,6 +1,7 @@
 
 import type { Intersection } from "../../types/traffic";
 import { optimizeSignalTiming } from "../../simulator/signalOptimizer";
+import { validateSignalPlan } from "../../simulator/signalSafety";
 
 interface IntersectionDetailsProps {
   intersection: Intersection;
@@ -12,6 +13,7 @@ function IntersectionDetails({
   const signalDecisions = optimizeSignalTiming(
     intersection.directions,
   );
+  const safetyReport = validateSignalPlan(signalDecisions);
 
   return (
     <section className="intersection-details">
@@ -19,7 +21,33 @@ function IntersectionDetails({
         <h3>{intersection.name} — Traffic details</h3>
         <p>Live simulated traffic conditions by direction.</p>
       </div>
+      <div
+        className={`safety-panel ${
+          safetyReport.passed ? "safety-pass" : "safety-fail"
+        }`}
+      >
+        <h4>
+          {safetyReport.passed
+            ? "Basic safety checks passed"
+            : "Safety checks failed"}
+        </h4>
 
+        <p>
+          {safetyReport.passed
+            ? "The proposed timing plan meets the configured demo constraints."
+            : "Do not present this timing plan as validated. Review the failed checks."}
+        </p>
+
+        <ul>
+          {safetyReport.checks.map((check) => (
+            <li key={check.label}>
+              <strong>{check.passed ? "PASS" : "FAIL"}</strong>
+              {" — "}
+              {check.label}: {check.detail}
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className="direction-grid">
         {intersection.directions.map((direction) => {
           const decision = signalDecisions.find(
