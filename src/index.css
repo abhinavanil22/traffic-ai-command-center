@@ -266,3 +266,46 @@ button {
 .intersection-row strong {
   color: #333;
 }
+
+.traffic-chart {
+  margin-top: 24px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .intersection-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intersection-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .main-content {
+    padding: 20px 16px;
+  }
+}
