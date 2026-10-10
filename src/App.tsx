@@ -21,18 +21,26 @@ import type { DemoScenario } from "./types/traffic";
 function App() {
   const [intersections, setIntersections] =
     useState<Intersection[]>(initialIntersections);
+  
+  const [activeScenario, setActiveScenario] = useState<DemoScenario>("normal");
+
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIntersections((currentData) =>
-        simulateTraffic(currentData),
+        simulateTraffic(
+          currentData,
+          activeScenario,
+          initialIntersections,
+        ),
       );
     }, 3000);
 
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [activeScenario]);
+
 
   const totalVehiclesWaiting = intersections.reduce(
     (total, intersection) =>
@@ -126,7 +134,6 @@ function handleScenarioChange(scenario: DemoScenario) {
 }
 
   const [activeView, setActiveView] = useState<DashboardView>("Overview");
-  const [activeScenario, setActiveScenario] = useState<DemoScenario>("normal");
   const viewDescriptions: Record<
     DashboardView,
     string
