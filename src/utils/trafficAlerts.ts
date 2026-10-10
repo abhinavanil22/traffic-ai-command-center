@@ -23,6 +23,18 @@ export function getActiveAlerts(
         `${intersection.name}: Backup timing plan active`,
       );
     }
+
+    if (intersection.status === "problem") {
+      alerts.push(
+        `${intersection.name}: Intersection requires attention`,
+      );
+    }
+
+    if (intersection.status === "busy") {
+      alerts.push(
+        `${intersection.name}: High traffic demand`,
+      );
+    }
   });
 
   return alerts;
