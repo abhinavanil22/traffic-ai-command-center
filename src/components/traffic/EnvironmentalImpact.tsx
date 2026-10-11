@@ -1,6 +1,9 @@
-
 import type { Intersection } from "../../types/traffic";
-import { estimateCarbonMetrics } from "../../utils/carbonEstimator";
+import {
+  estimateCarbonMetrics,
+  compareCarbonMetrics,
+} from "../../utils/carbonEstimator";
+import { intersections as baselineIntersections } from "../../data/mockData";
 import SummaryCard from "../common/SummaryCard";
 
 interface EnvironmentalImpactProps {
@@ -11,6 +14,10 @@ function EnvironmentalImpact({
   intersections,
 }: EnvironmentalImpactProps) {
   const metrics = estimateCarbonMetrics(intersections);
+  const comparison = compareCarbonMetrics(
+    baselineIntersections,
+    intersections,
+  );
 
   return (
     <section className="environmental-impact">
@@ -63,6 +70,47 @@ function EnvironmentalImpact({
           signal timing are not included.
         </p>
       </div>
+            
+      <div className="traffic-info">
+        <h3>Baseline vs Adaptive Signals</h3>
+        <p>
+          Baseline uses the original mock traffic data. Adaptive
+          represents the current simulated traffic snapshot.
+        </p>
+
+        <div className="summary-grid">
+          <SummaryCard
+            title="Baseline estimated CO₂"
+            value={`${comparison.baselineCO2KgPerHour.toFixed(2)} kg/h`}
+            description="Original mock traffic"
+          />
+
+          <SummaryCard
+            title="Current estimated CO₂"
+            value={`${comparison.adaptiveCO2KgPerHour.toFixed(2)} kg/h`}
+            description="Current simulated traffic"
+          />
+
+          <SummaryCard
+            title="Estimated difference"
+            value={`${Math.abs(comparison.potentialCO2DifferenceKgPerHour).toFixed(2)} kg/h`}
+            description={
+              comparison.potentialCO2DifferenceKgPerHour > 0
+                ? "Potential reduction in the model"
+                : comparison.potentialCO2DifferenceKgPerHour < 0
+                  ? "Estimated emissions increase"
+                  : "No estimated difference"
+            }
+          />
+
+          <SummaryCard
+            title="Relative difference"
+            value={`${comparison.potentialReductionPercent.toFixed(1)}%`}
+            description="Positive means lower estimated emissions"
+          />
+        </div>
+      </div>
+
     </section>
   );
 }

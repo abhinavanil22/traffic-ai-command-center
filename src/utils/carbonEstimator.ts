@@ -59,3 +59,41 @@ export function estimateCarbonMetrics(
       Number(estimatedAverageWaitSeconds.toFixed(1)),
   };
 }
+
+
+export interface CarbonComparison {
+  baselineCO2KgPerHour: number;
+  adaptiveCO2KgPerHour: number;
+  potentialCO2DifferenceKgPerHour: number;
+  potentialReductionPercent: number;
+}
+
+export function compareCarbonMetrics(
+  baseline: Intersection[],
+  adaptive: Intersection[],
+): CarbonComparison {
+  const baselineMetrics = estimateCarbonMetrics(baseline);
+  const adaptiveMetrics = estimateCarbonMetrics(adaptive);
+
+  const potentialCO2DifferenceKgPerHour =
+    baselineMetrics.estimatedIdleCO2KgPerHour -
+    adaptiveMetrics.estimatedIdleCO2KgPerHour;
+
+  const potentialReductionPercent =
+    baselineMetrics.estimatedIdleCO2KgPerHour > 0
+      ? (potentialCO2DifferenceKgPerHour /
+          baselineMetrics.estimatedIdleCO2KgPerHour) *
+        100
+      : 0;
+
+  return {
+    baselineCO2KgPerHour:
+      baselineMetrics.estimatedIdleCO2KgPerHour,
+    adaptiveCO2KgPerHour:
+      adaptiveMetrics.estimatedIdleCO2KgPerHour,
+    potentialCO2DifferenceKgPerHour:
+      Number(potentialCO2DifferenceKgPerHour.toFixed(2)),
+    potentialReductionPercent:
+      Number(potentialReductionPercent.toFixed(1)),
+  };
+}
