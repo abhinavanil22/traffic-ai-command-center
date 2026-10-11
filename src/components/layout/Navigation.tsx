@@ -5,6 +5,7 @@ export type DashboardView =
   | "Why Signals Changed"
   | "Alerts & Safety"
   | "Reports"
+  | "Environmental Impact"
   | "Manual Control";
 
 interface NavigationProps {
@@ -22,6 +23,7 @@ function Navigation({
     "Why Signals Changed",
     "Alerts & Safety",
     "Reports",
+    "Environmental Impact",
     "Manual Control",
   ];
 

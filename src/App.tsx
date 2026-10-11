@@ -5,6 +5,7 @@ import { useTrafficHistory } from "./hooks/useTrafficHistory";
 import TrafficChart from "./components/traffic/TrafficChart";
 import IntersectionDetails from "./components/traffic/IntersectionDetails";
 import SignalDecisionPanel from "./components/traffic/SignalDecisionPanel";
+import EnvironmentalImpact from "./components/traffic/EnvironmentalImpact";
 
 
 import Header from "./components/layout/Header";
@@ -144,6 +145,7 @@ function handleScenarioChange(scenario: DemoScenario) {
     "Alerts & Safety": "Monitor intersection status and active alerts.",
     Reports: "Review traffic trends and session statistics.",
     "Manual Control": "Operator controls for the simulated signal environment.",
+    "Environmental Impact": "Explore simulated fuel use and estimated carbon emissions under different traffic conditions.",
   };
   
 
@@ -306,6 +308,12 @@ function handleScenarioChange(scenario: DemoScenario) {
             )}
           </>
         )}
+
+        
+        {activeView === "Environmental Impact" && (
+          <EnvironmentalImpact intersections={intersections} />
+        )}
+
 
         {activeView === "Why Signals Changed" && (
           selectedIntersection && (
