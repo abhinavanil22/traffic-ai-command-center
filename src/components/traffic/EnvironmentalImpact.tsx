@@ -5,6 +5,7 @@ import {
 } from "../../utils/carbonEstimator";
 import { intersections as baselineIntersections } from "../../data/mockData";
 import SummaryCard from "../common/SummaryCard";
+import { compareSignalStrategies } from "../../utils/signalComparison";
 
 interface EnvironmentalImpactProps {
   intersections: Intersection[];
@@ -14,6 +15,9 @@ function EnvironmentalImpact({
   intersections,
 }: EnvironmentalImpactProps) {
   const metrics = estimateCarbonMetrics(intersections);
+  const signalComparison = compareSignalStrategies(
+    intersections.flatMap((intersection) => intersection.directions),
+  );
   const comparison = compareCarbonMetrics(
     baselineIntersections,
     intersections,
@@ -108,6 +112,40 @@ function EnvironmentalImpact({
             value={`${comparison.potentialReductionPercent.toFixed(1)}%`}
             description="Positive means lower estimated emissions"
           />
+        </div>
+      </div>
+      
+      <div className="traffic-info">
+        <h3>Fixed-time vs Adaptive Signal Strategy</h3>
+        <p>
+          Illustrative estimates based on the same current traffic snapshot.
+          Queue and waiting-time values are model outputs, not measured results.
+        </p>
+
+        <div className="summary-grid">
+          {signalComparison.map((result) => (
+            <SummaryCard
+              key={result.strategy}
+              title={`${result.strategy} estimated remaining queue`}
+              value={`${result.totalVehiclesWaiting} vehicles`}
+              description={`Estimated average waiting-time indicator: ${result.estimatedAverageWaitSeconds.toFixed(1)} sec`}
+            />
+          ))}
+        </div>
+
+        <div className="summary-grid">
+          {signalComparison.map((result) => (
+            <SummaryCard
+              key={result.strategy}
+              title={`${result.strategy} green time`}
+              value={`${result.totalGreenTimeSeconds} sec`}
+              description={
+                result.safetyPassed
+                  ? "Passed the current basic validation checks"
+                  : "Failed the current basic validation checks"
+              }
+            />
+          ))}
         </div>
       </div>
 
