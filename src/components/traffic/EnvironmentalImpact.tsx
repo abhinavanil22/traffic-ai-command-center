@@ -1,3 +1,4 @@
+
 import type { Intersection } from "../../types/traffic";
 import {
   estimateCarbonMetrics,
@@ -5,7 +6,10 @@ import {
 } from "../../utils/carbonEstimator";
 import { intersections as baselineIntersections } from "../../data/mockData";
 import SummaryCard from "../common/SummaryCard";
-import { compareSignalStrategies } from "../../utils/signalComparison";
+import {
+  compareSignalStrategies,
+  compareDirectionTimings,
+} from "../../utils/signalComparison";
 
 interface EnvironmentalImpactProps {
   intersections: Intersection[];
@@ -15,12 +19,32 @@ function EnvironmentalImpact({
   intersections,
 }: EnvironmentalImpactProps) {
   const metrics = estimateCarbonMetrics(intersections);
-  const signalComparison = compareSignalStrategies(
-    intersections.flatMap((intersection) => intersection.directions),
+
+  const directions = intersections.flatMap(
+    (intersection) => intersection.directions,
   );
+
+  const signalComparison = compareSignalStrategies(directions);
+  const directionTimings = compareDirectionTimings(directions);
+
   const comparison = compareCarbonMetrics(
     baselineIntersections,
     intersections,
+  );
+
+  const fixedTotal = directionTimings.reduce(
+    (total, timing) => total + timing.fixedGreenTime,
+    0,
+  );
+
+  const adaptiveTotal = directionTimings.reduce(
+    (total, timing) => total + timing.adaptiveGreenTime,
+    0,
+  );
+
+  const totalDifference = directionTimings.reduce(
+    (total, timing) => total + timing.differenceSeconds,
+    0,
   );
 
   return (
@@ -74,7 +98,7 @@ function EnvironmentalImpact({
           signal timing are not included.
         </p>
       </div>
-            
+
       <div className="traffic-info">
         <h3>Baseline vs Adaptive Signals</h3>
         <p>
@@ -114,41 +138,133 @@ function EnvironmentalImpact({
           />
         </div>
       </div>
-      
-      <div className="traffic-info">
-        <h3>Fixed-time vs Adaptive Signal Strategy</h3>
-        <p>
-          Illustrative estimates based on the same current traffic snapshot.
-          Queue and waiting-time values are model outputs, not measured results.
+
+      <div className="traffic-info signal-strategy-panel">
+        <div className="green-time-heading">
+          <div>
+            <h3>Fixed-time vs Adaptive Signal Strategy</h3>
+            <p>
+              Illustrative queue estimates and green-time validation
+              using the current simulated traffic snapshot.
+            </p>
+          </div>
+
+          <span className="simulation-badge">SIMULATED</span>
+        </div>
+
+        <div className="signal-strategy-grid">
+          {signalComparison.map((result) => (
+            <div
+              className="signal-strategy-card"
+              key={result.strategy}
+            >
+              <div className="signal-strategy-card-heading">
+                <span>{result.strategy}</span>
+
+                <span
+                  className={`validation-badge ${
+                    result.safetyPassed
+                      ? "validation-pass"
+                      : "validation-fail"
+                  }`}
+                >
+                  {result.safetyPassed
+                    ? "CHECKS PASSED"
+                    : "CHECKS FAILED"}
+                </span>
+              </div>
+
+              <div className="signal-strategy-metric">
+                <span>Estimated remaining queue</span>
+                <strong>
+                  {result.totalVehiclesWaiting} vehicles
+                </strong>
+              </div>
+
+              <div className="signal-strategy-metric">
+                <span>Waiting-time indicator</span>
+                <strong>
+                  {result.estimatedAverageWaitSeconds.toFixed(1)} sec
+                </strong>
+              </div>
+
+              <div className="signal-strategy-metric">
+                <span>Total green allocation</span>
+                <strong>
+                  {result.totalGreenTimeSeconds} sec
+                </strong>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="green-time-note">
+          These are illustrative model outputs, not measured traffic
+          performance. The basic validation checks do not certify
+          real-world signal safety.
         </p>
 
-        <div className="summary-grid">
-          {signalComparison.map((result) => (
-            <SummaryCard
-              key={result.strategy}
-              title={`${result.strategy} estimated remaining queue`}
-              value={`${result.totalVehiclesWaiting} vehicles`}
-              description={`Estimated average waiting-time indicator: ${result.estimatedAverageWaitSeconds.toFixed(1)} sec`}
-            />
-          ))}
+        <div className="green-time-table-wrapper">
+          <table className="green-time-table">
+            <thead>
+              <tr>
+                <th>Direction</th>
+                <th>Fixed-time</th>
+                <th>Adaptive</th>
+                <th>Change</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {directionTimings.map((timing) => (
+                <tr key={timing.direction}>
+                  <td>
+                    <span className="direction-label">
+                      {timing.direction}
+                    </span>
+                  </td>
+
+                  <td>{timing.fixedGreenTime} sec</td>
+
+                  <td className="adaptive-value">
+                    {timing.adaptiveGreenTime} sec
+                  </td>
+
+                  <td>
+                    <span
+                      className={`timing-change ${
+                        timing.differenceSeconds > 0
+                          ? "timing-increase"
+                          : timing.differenceSeconds < 0
+                            ? "timing-decrease"
+                            : "timing-unchanged"
+                      }`}
+                    >
+                      {timing.differenceSeconds > 0 ? "+" : ""}
+                      {timing.differenceSeconds} sec
+                    </span>
+                  </td>
+                </tr>
+              ))}
+
+              <tr className="green-time-total">
+                <td>Total cycle allocation</td>
+                <td>{fixedTotal} sec</td>
+                <td className="adaptive-value">
+                  {adaptiveTotal} sec
+                </td>
+                <td>{totalDifference} sec</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div className="summary-grid">
-          {signalComparison.map((result) => (
-            <SummaryCard
-              key={result.strategy}
-              title={`${result.strategy} green time`}
-              value={`${result.totalGreenTimeSeconds} sec`}
-              description={
-                result.safetyPassed
-                  ? "Passed the current basic validation checks"
-                  : "Failed the current basic validation checks"
-              }
-            />
-          ))}
-        </div>
+        <p className="green-time-note">
+          Adaptive timings are proposals generated from simulated
+          vehicle demand. The green-time allocation excludes amber
+          and all-red intervals.
+        </p>
       </div>
-
     </section>
   );
 }

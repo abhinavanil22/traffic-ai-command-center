@@ -11,6 +11,14 @@ export interface StrategyComparison {
   safetyPassed: boolean;
 }
 
+export interface DirectionTimingComparison {
+  direction: DirectionTraffic["direction"];
+  fixedGreenTime: number;
+  adaptiveGreenTime: number;
+  differenceSeconds: number;
+}
+
+
 function estimateQueueAfterCycle(
   directions: DirectionTraffic[],
   greenTimes: number[],
@@ -115,3 +123,23 @@ export function compareSignalStrategies(
     },
   ];
 }
+
+
+export function compareDirectionTimings(
+  directions: DirectionTraffic[],
+): DirectionTimingComparison[] {
+  const adaptiveDecisions = optimizeSignalTiming(directions);
+
+  return directions.map((direction, index) => {
+    const adaptiveGreenTime =
+      adaptiveDecisions[index]?.proposedGreenTime ?? direction.greenTime;
+
+    return {
+      direction: direction.direction,
+      fixedGreenTime: direction.greenTime,
+      adaptiveGreenTime,
+      differenceSeconds: adaptiveGreenTime - direction.greenTime,
+    };
+  });
+}
+
