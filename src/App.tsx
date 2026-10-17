@@ -24,6 +24,8 @@ import type { DemoScenario } from "./types/traffic";
 function App() {
   const [intersections, setIntersections] =
     useState<Intersection[]>(initialIntersections);
+  const [selectedIntersectionName, setSelectedIntersectionName] =
+  useState<string>(initialIntersections[0]?.name ?? "");
   const [controlMode, setControlMode] =
     useState<ControlMode>("Adaptive");
   const [activeScenario, setActiveScenario] = useState<DemoScenario>("normal");
@@ -40,7 +42,10 @@ function App() {
 
   const activeAlerts = getActiveAlerts(intersections);
   const trafficHistory = useTrafficHistory(intersections);
-  const selectedIntersection = intersections[0];
+  const selectedIntersection =
+    intersections.find(
+      (intersection) => intersection.name === selectedIntersectionName,
+    ) ?? intersections[0];
   
 function handleScenarioChange(scenario: DemoScenario) {
   setActiveScenario(scenario);
@@ -175,6 +180,44 @@ function handleApplySignalPlan(
           <h2>{activeView}</h2>
           <p>{viewDescriptions[activeView]}</p>
         </div>
+        {(
+          [
+            "Overview",
+            "Intersections",
+            "Why Signals Changed",
+            "Manual Control",
+          ] as DashboardView[]
+        ).includes(activeView) && (
+          <section className="intersection-details">
+            <div className="section-heading">
+              <h3>Select an intersection</h3>
+              <p>
+                Choose which junction to inspect or configure.
+              </p>
+            </div>
+
+            <label htmlFor="intersection-selector">
+              Intersection
+            </label>
+
+            <select
+              id="intersection-selector"
+              value={selectedIntersection?.name ?? ""}
+              onChange={(event) =>
+                setSelectedIntersectionName(event.target.value)
+              }
+            >
+              {intersections.map((intersection) => (
+                <option
+                  key={intersection.name}
+                  value={intersection.name}
+                >
+                  {intersection.name}
+                </option>
+              ))}
+            </select>
+          </section>
+        )}
         {activeView === "Overview" && (
           <section className="demo-controls">
             <div>
