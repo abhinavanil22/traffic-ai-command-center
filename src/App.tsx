@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getActiveAlerts } from "./utils/trafficAlerts";
 import IntersectionStatus from "./components/traffic/IntersectionStatus";
 import { useTrafficHistory } from "./hooks/useTrafficHistory";
@@ -6,7 +6,9 @@ import TrafficChart from "./components/traffic/TrafficChart";
 import IntersectionDetails from "./components/traffic/IntersectionDetails";
 import SignalDecisionPanel from "./components/traffic/SignalDecisionPanel";
 import EnvironmentalImpact from "./components/traffic/EnvironmentalImpact";
-
+import ManualControl, {
+  type ControlMode,
+} from "./components/traffic/ManualControl";
 
 import Header from "./components/layout/Header";
 import Navigation, { type DashboardView, } from "./components/layout/Navigation";
@@ -14,7 +16,7 @@ import Footer from "./components/layout/Footer";
 import SummaryCard from "./components/common/SummaryCard";
 
 import { intersections as initialIntersections } from "./data/mockData";
-import { simulateTraffic } from "./simulator/trafficSimulator";
+
 import type { Intersection } from "./types/traffic";
 import type { DemoScenario } from "./types/traffic";
 
@@ -22,25 +24,11 @@ import type { DemoScenario } from "./types/traffic";
 function App() {
   const [intersections, setIntersections] =
     useState<Intersection[]>(initialIntersections);
-  
+  const [controlMode, setControlMode] =
+    useState<ControlMode>("Adaptive");
   const [activeScenario, setActiveScenario] = useState<DemoScenario>("normal");
 
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIntersections((currentData) =>
-        simulateTraffic(
-          currentData,
-          activeScenario,
-          initialIntersections,
-        ),
-      );
-    }, 3000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [activeScenario]);
 
 
   const totalVehiclesWaiting = intersections.reduce(
@@ -133,7 +121,30 @@ function handleScenarioChange(scenario: DemoScenario) {
     }),
   );
 }
+function handleApplySignalPlan(
+  intersectionName: string,
+  mode: ControlMode,
+  timings: Record<string, number>,
+) {
+  setIntersections((previous) =>
+    previous.map((intersection) => {
+      if (intersection.name !== intersectionName) {
+        return intersection;
+      }
 
+      return {
+        ...intersection,
+        directions: intersection.directions.map((direction) => ({
+          ...direction,
+          greenTime:
+            timings[direction.direction] ?? direction.greenTime,
+        })),
+      };
+    }),
+  );
+
+  setControlMode(mode);
+}
   const [activeView, setActiveView] = useState<DashboardView>("Overview");
   const viewDescriptions: Record<
     DashboardView,
@@ -373,31 +384,12 @@ function handleScenarioChange(scenario: DemoScenario) {
         )}
 
         {activeView === "Manual Control" && (
-          <section className="intersection-details">
-            <div className="section-heading">
-              <h3>Operator Control Centre</h3>
-              <p>
-                Manual signal control is a planned demo feature.
-                No commands are sent to physical traffic signals.
-              </p>
-            </div>
-
-            <p>
-              Selected intersection:{" "}
-              <strong>
-                {selectedIntersection?.name ?? "None selected"}
-              </strong>
-            </p>
-
-            <p>
-              Current mode: <strong>Simulation</strong>
-            </p>
-
-            <p>
-              Proposed timings can be reviewed in the
-              "Why Signals Changed" tab.
-            </p>
-          </section>
+          <ManualControl
+            intersection={selectedIntersection ?? null}
+            mode={controlMode}
+            onModeChange={setControlMode}
+            onApplyPlan={handleApplySignalPlan}
+          />
         )}
         
       </main>
